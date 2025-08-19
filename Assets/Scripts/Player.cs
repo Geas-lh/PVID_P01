@@ -47,4 +47,13 @@ public class Player : MonoBehaviour
             }
         }
     }
+        private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("frutas"))
+        {
+            Debug.Log("Fruta recolectada: " + other.name);
+            other.gameObject.SetActive(false); // Desactiva la fruta recolectada
+            // Aquí puedes agregar más lógica, por ejemplo sumar puntos, reproducir sonido, etc.
+        }
+    }
 }
