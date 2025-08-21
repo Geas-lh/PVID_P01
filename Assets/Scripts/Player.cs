@@ -7,53 +7,49 @@ public class Player : MonoBehaviour
     public float correrSpeed = 2;
     public float saltarSpeed = 2;
     public bool gransalto = true;
-    public float multiplicador = 0.5f;
-    public float bajo_multiplicador = 1f;
+    public float multiplicador = 2f;          // recomendado >1 para efecto visible
+    public float bajo_multiplicador = 2f;     // recomendado >1 para efecto visible
+
     Rigidbody2D rb2D;
-    // Start is called before the first frame update
+
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        // Movimiento horizontal
         if (Input.GetKey("d") || Input.GetKey("right"))
         {
             rb2D.velocity = new Vector2(correrSpeed, rb2D.velocity.y);
         }
         else if (Input.GetKey("a") || Input.GetKey("left"))
         {
-            rb2D.velocity = new Vector2(-correrSpeed, rb2D.velocity.y); // ← negativo para ir a la izquierda
+            rb2D.velocity = new Vector2(-correrSpeed, rb2D.velocity.y);
         }
         else
         {
             rb2D.velocity = new Vector2(0, rb2D.velocity.y);
         }
 
+        // Salto
         if (Input.GetKey("space") && Ground.IsGround)
         {
             rb2D.velocity = new Vector2(rb2D.velocity.x, saltarSpeed);
         }
-        if (gransalto){//evento para agregar efecto de salto mas fuerte y mas bajo.
+
+        // Mejorar efecto salto
+        if (gransalto)
+        {
             if (rb2D.velocity.y < 0)
             {
-                rb2D.velocity += Vector2.up * Physics2D.gravity.y * (multiplicador) * Time.deltaTime;
+                rb2D.velocity += Vector2.up * Physics2D.gravity.y * (multiplicador - 1) * Time.deltaTime;
             }
-            if (rb2D.velocity.y > 0 && !Input.GetKey("space"))
+            else if (rb2D.velocity.y > 0 && !Input.GetKey("space"))
             {
-                rb2D.velocity += Vector2.up * Physics2D.gravity.y * (bajo_multiplicador) * Time.deltaTime;
+                rb2D.velocity += Vector2.up * Physics2D.gravity.y * (bajo_multiplicador - 1) * Time.deltaTime;
             }
-        }
-    }
-        private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("frutas"))
-        {
-            Debug.Log("Fruta recolectada: " + other.name);
-            other.gameObject.SetActive(false); // Desactiva la fruta recolectada
-            // Aquí puedes agregar más lógica, por ejemplo sumar puntos, reproducir sonido, etc.
         }
     }
 }
