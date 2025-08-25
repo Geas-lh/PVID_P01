@@ -11,27 +11,38 @@ public class Player : MonoBehaviour
     public float bajo_multiplicador = 2f;     // recomendado >1 para efecto visible
 
     Rigidbody2D rb2D;
+    Animator animator;
+    SpriteRenderer spriteRenderer;
 
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
+        float move = 0f;
+
         // Movimiento horizontal
         if (Input.GetKey("d") || Input.GetKey("right"))
         {
-            rb2D.velocity = new Vector2(correrSpeed, rb2D.velocity.y);
+            move = 1f;
         }
         else if (Input.GetKey("a") || Input.GetKey("left"))
         {
-            rb2D.velocity = new Vector2(-correrSpeed, rb2D.velocity.y);
+            move = -1f;
         }
-        else
-        {
-            rb2D.velocity = new Vector2(0, rb2D.velocity.y);
-        }
+
+        rb2D.velocity = new Vector2(move * correrSpeed, rb2D.velocity.y);
+
+        // Voltear sprite según dirección
+        if (move > 0) spriteRenderer.flipX = false;
+        if (move < 0) spriteRenderer.flipX = true;
+
+        // Enviar parámetro al Animator
+        animator.SetFloat("Speed", Mathf.Abs(move));
 
         // Salto
         if (Input.GetKey("space") && Ground.IsGround)
