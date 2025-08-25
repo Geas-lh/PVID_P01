@@ -7,11 +7,11 @@ public class JumpDamage : MonoBehaviour
     public Collider2D enemyCollider;
     public Animator animator;
     public SpriteRenderer spriterenderer;
-    public GameObject destroyParticle;
+    public GameObject destroyParticle; // Prefab de la partícula
     public float jumpForce = 2.5f;
     public int lifes = 2;
 
-    public void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Player"))
         {
@@ -24,21 +24,36 @@ public class JumpDamage : MonoBehaviour
     public void LosseLifeAndHit()
     {
         lifes--;
-        animator.Play("hit");
+        if (animator != null) animator.Play("hit");
     }
 
     public void CheckLife()
     {
         if (lifes <= 0)
         {
+            if (enemyCollider != null) enemyCollider.enabled = false;
+            if (spriterenderer != null) spriterenderer.enabled = false;
+
+            // Instanciar partícula y programar su destrucción
             if (destroyParticle != null)
             {
-                destroyParticle.transform.SetParent(null);
-                destroyParticle.SetActive(true);
+                var fx = Instantiate(destroyParticle, transform.position, Quaternion.identity);
+                var ps = fx.GetComponent<ParticleSystem>();
+                if (ps != null)
+                {
+                    var main = ps.main;
+                    // Asegura autodestrucción al terminar (por si el prefab no lo tiene configurado)
+                    main.stopAction = ParticleSystemStopAction.Destroy;
+                    float life = main.duration + main.startLifetime.constantMax + main.startDelay.constantMax;
+                    Destroy(fx, life);
+                }
+                else
+                {
+                    Destroy(fx, 2f); // fallback si no hay ParticleSystem
+                }
             }
 
-            spriterenderer.enabled = false;
-            Invoke("EnemyDie", 0.2f);
+            Invoke(nameof(EnemyDie), 0.2f);
         }
     }
 
